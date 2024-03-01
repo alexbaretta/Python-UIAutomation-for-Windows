@@ -1884,7 +1884,27 @@ def SendMessage(handle: int, msg: int, wParam: int, lParam: int) -> int:
     Return int, the return value specifies the result of the message processing;
                 it depends on the message sent.
     """
-    return ctypes.windll.user32.SendMessageW(ctypes.c_void_p(handle), ctypes.c_uint(msg), ctypes.wintypes.WPARAM(wParam), ctypes.wintypes.LPARAM(lParam))
+    # print(f'{handle=} {msg=} {wParam=} {str(lParam)=}')
+    
+    c_void_p_handle = ctypes.c_void_p(handle)
+    c_uint_msg = ctypes.c_uint(msg)
+    wintypes_wParam = ctypes.wintypes.WPARAM(wParam)
+    wintypes_lParam = ctypes.wintypes.LPARAM(lParam)
+    result = ctypes.windll.user32.SendMessageW(c_void_p_handle, c_uint_msg, wintypes_wParam, wintypes_lParam)
+    return result
+
+def SendMessageNoWrap(handle: int, msg: int, wParam: any, lParam: any) -> int:
+    """
+    SendMessage from Win32.
+    Return int, the return value specifies the result of the message processing;
+                it depends on the message sent.
+    """
+    # print(f'{handle=} {msg=} {wParam=} {str(lParam)=}')
+    
+    c_void_p_handle = ctypes.c_void_p(handle)
+    c_uint_msg = ctypes.c_uint(msg)
+    result = ctypes.windll.user32.SendMessageW(c_void_p_handle, c_uint_msg, wParam, lParam)
+    return result
 
 
 def Click(x: int, y: int, waitTime: float = OPERATION_WAIT_TIME) -> None:
@@ -2361,7 +2381,8 @@ def GetEditText(handle: int) -> str:
     textLen = SendMessage(handle, 0x000E, 0, 0) + 1  # WM_GETTEXTLENGTH
     arrayType = ctypes.c_wchar * textLen
     values = arrayType()
-    SendMessage(handle, 0x000D, textLen, values)  # WM_GETTEXT
+    # print(f'{handle=}, 0x000D, {textLen=}, {values=}')
+    SendMessageNoWrap(handle, 0x000D, textLen, values)  # WM_GETTEXT
     return values.value
 
 
